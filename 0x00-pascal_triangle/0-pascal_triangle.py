@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-array2 = [1, 3, 3, 1]
+array2 = [1, 5, 10, 10, 5, 1]
 
 """if len(array) % 2 == 1:
     length = int (len(array) - 1 / 2)
@@ -39,6 +39,6 @@ if len(array2) % 2 == 0:
             o = 1
         if array2[i] > array2[i + 1]:
             break
-    array2 = array1[::-1]
+    array2 = array1[-2::-1]
     total_array = array1 + array2
     print(total_array)
