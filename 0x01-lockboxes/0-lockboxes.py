@@ -1,11 +1,13 @@
 #!/usr/bin/python3
 """Module for the canUnlockAll function"""
 
+
 def canUnlockAll(boxes):
     """
     Determines if all boxes can be opened.
-    
-    :param boxes: A list of lists where each inner list represents the keys in a box
+
+    :param boxes: A list of lists where each inner
+                    list represents the keys in a box
     :return: True if all boxes can be opened, else False
     """
     if not isinstance(boxes, list) or len(boxes) == 0:
