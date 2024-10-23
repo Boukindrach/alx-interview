@@ -1,51 +1,93 @@
-#!/usr/bin/env python3
-"""Reads stdin line by line and computes metrics"""
+#!/usr/bin/python3
+
+"""Script that reads stdin line by line and computes metrics"""
 
 import sys
-import re
-import signal
+from typing import Dict
+import logging
 
-total_size = 0
-status_codes = {}
-line_count = 0
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
-def print_statistics():
-    """Print the required statistics"""
-    print("File size:", total_size)
-    for code in sorted(status_codes.keys()):
-        print(f"{code}: {status_codes[code]}")
+class MetricsProcessor:
+    """Handles the processing of log lines and computation of metrics."""
 
-def signal_handler(sig, frame):
-    """Handle CTRL+C by printing statistics and exiting"""
-    print_statistics()
-    sys.exit(0)
+    def __init__(self):
+        """Initialize metrics tracking dictionaries and counters."""
+        self.status_codes = {
+            "200": 0, "301": 0, "400": 0, "401": 0,
+            "403": 0, "404": 0, "405": 0, "500": 0
+        }
+        self.total_size = 0
+        self.line_count = 0
+        self.print_interval = 10
 
-# Register the signal handler for CTRL+C
-signal.signal(signal.SIGINT, signal_handler)
+    def print_statistics(self) -> None:
+        """Print the current statistics for file size and status codes."""
+        print(f"File size: {self.total_size}")
+        for code in sorted(self.status_codes.keys()):
+            if self.status_codes[code] > 0:
+                print(f"{code}: {self.status_codes[code]}")
 
-# Regular expression pattern for the log line format
-pattern = r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3} - \[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{6}\] "GET /projects/260 HTTP/1\.1" (\d{3}) (\d+)$'
+    def process_line(self, line: str) -> None:
+        """
+        Process a single line of log input.
 
-try:
-    for line in sys.stdin:
-        match = re.match(pattern, line.strip())
-        if match:
-            # Extract status code and file size
-            status_code = match.group(1)
-            file_size = int(match.group(2))
+        Args:
+            line: A string containing the log line to process
+        """
+        try:
+            parts = line.split()
+            if len(parts) < 2:
+                return
 
-            # Update metrics
-            total_size += file_size
-            status_codes[status_code] = status_codes.get(status_code, 0) + 1
-            line_count += 1
+            # Update file size
+            try:
+                self.total_size += int(parts[-1])
+            except (ValueError, IndexError):
+                logging.warning(f"Invalid file size in line: {line.strip()}")
 
-            # Print statistics every 10 lines
-            if line_count % 10 == 0:
-                print_statistics()
+            # Update status code count
+            try:
+                status_code = parts[-2]
+                if status_code in self.status_codes:
+                    self.status_codes[status_code] += 1
+            except IndexError:
+                logging.warning(f"Invalid status code in line: {line.strip()}")
 
-except KeyboardInterrupt:
-    print_statistics()
-    sys.exit(0)
-except Exception as e:
-    print(f"Error processing input: {e}", file=sys.stderr)
-    sys.exit(1)
+        except Exception as e:
+            logging.error(f"Error processing line: {e}")
+
+    def process_input(self) -> None:
+        """Process input from stdin and print statistics at regular intervals."""
+        try:
+            for line in sys.stdin:
+                self.line_count += 1
+                self.process_line(line)
+
+                # Print statistics every 10 lines
+                if self.line_count % self.print_interval == 0:
+                    self.print_statistics()
+
+            # Print final statistics
+            self.print_statistics()
+
+        except KeyboardInterrupt:
+            logging.info("Processing interrupted by user")
+            self.print_statistics()
+            raise
+
+def main():
+    """Main entry point for the script."""
+    try:
+        processor = MetricsProcessor()
+        processor.process_input()
+    except Exception as e:
+        logging.error(f"Fatal error: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
