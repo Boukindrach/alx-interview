@@ -12,6 +12,7 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
+
 class MetricsProcessor:
     """Handles the processing of log lines and computation of metrics."""
 
@@ -62,7 +63,7 @@ class MetricsProcessor:
             logging.error(f"Error processing line: {e}")
 
     def process_input(self) -> None:
-        """Process input from stdin and print statistics at regular intervals."""
+        """Process input from stdin and print statistics"""
         try:
             for line in sys.stdin:
                 self.line_count += 1
@@ -80,6 +81,7 @@ class MetricsProcessor:
             self.print_statistics()
             raise
 
+
 def main():
     """Main entry point for the script."""
     try:
@@ -88,6 +90,7 @@ def main():
     except Exception as e:
         logging.error(f"Fatal error: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
