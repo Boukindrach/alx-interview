@@ -28,8 +28,7 @@ class NQueensSolver:
         Find all solutions to the N-Queens problem.
 
         Returns:
-            List[List[int]]: List of solutions, where each solution is a list of
-                            [row, col] coordinates for queen positions
+            List[List[int]]: List of solutions
         """
         self._backtrack(0)
         return self.solutions
@@ -64,8 +63,8 @@ class NQueensSolver:
             bool: True if placement is safe, False otherwise
         """
         return not (col in self.cols or
-                   (row + col) in self.pos_diag or
-                   (row - col) in self.neg_diag)
+                    (row + col) in self.pos_diag or
+                    (row - col) in self.neg_diag)
 
     def _place_queen(self, row: int, col: int) -> None:
         """
