@@ -11,6 +11,7 @@ def is_prime(n):
             return False
     return True
 
+
 def play_round(n):
     """
     Play a single round of the prime game.
@@ -38,10 +39,11 @@ def play_round(n):
 
         maria_turn = not maria_turn
 
+
 def isWinner(x, nums):
     """
     Determine the overall winner of x rounds of prime game.
-    
+
     :param x: Number of rounds
     :param nums: List of n values for each round
     :return: Name of the player who won the most rounds, or None
